@@ -1,0 +1,28 @@
+#!/bin/sh
+
+for arg in $@
+do
+  filename="$arg"
+  oldFile="$arg.old"
+
+  if [[ ! -f "$filename" ]]; then
+    echo "[promprober-config-watcher] Could not load config: file($filename)"
+    continue
+  fi
+
+  if [[ ! -f "$oldFile" ]]; then
+      echo "$oldFile does not exists."
+      echo "[promprober-config-watcher] Creating old config file..."
+      cp -v "$filename" "$oldFile"
+  fi
+
+  if [[ $(cksum $filename | awk '{ print $1 }') -ne $(cksum $oldFile | awk '{ print $1 }') ]];then
+    echo "[promprober-config-watcher] Promprober config at $filename was changed."
+    echo "[promprober-config-watcher] Replace $oldFile with newest content!"
+    cp -v "$filename" "$oldFile"
+    exec halt
+  fi
+done
+
+exit 0
+

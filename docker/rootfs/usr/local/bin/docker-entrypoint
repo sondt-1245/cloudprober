@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "[docker-entrypoint] Setup cronjob for watching config..."
+echo "* * * * *  promprober-config-watcher $@" | crontab -u root -
+crond -l 0
+
+exec /init cloudprober "$@"
